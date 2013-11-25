@@ -12,8 +12,6 @@
  
 require './config.php';
 
-error_reporting(0);
-
 // Get the keys so we can check quickly
 $replace_files = array_keys( $replace );
 
@@ -36,9 +34,9 @@ function parse_dir( $dir, $url ) {
 		if ( in_array( utf8_encode( $file ), $ignore ) )
 			continue;	
 
-		if ( is_dir( $file ) ) {		
+		if ( is_dir( $dir . $file ) ) {		
 			if ( defined( 'RECURSIVE' ) && RECURSIVE ) {						
-				parse_dir( $file, $url . $file . '/' );				
+				parse_dir($dir . $file . "/" , $url . $file . '/' );				
 			}
 		} 
 
@@ -86,8 +84,6 @@ parse_dir( SITEMAP_DIR, SITEMAP_DIR_URL ) + "\n";
 $xml .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
 $xml .= $xml_content;
 $xml .= "</urlset>";
-
-echo $xml;
 
 file_put_contents($xml_filename, $xml);
 file_put_contents($urllist_filename, $urllist);
