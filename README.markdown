@@ -1,10 +1,14 @@
 # XML Sitemap PHP Script 
 
-This simple PHP script is meant to help you easily create XML Sitemaps for static files. Read more about the [XML Sitemap PHP script](http://yoast.com/xml-sitemap-php-script/).
+This simple PHP script is meant to help you easily create XML Sitemaps for static files. 
+
+The original script [XML Sitemap PHP script](http://yoast.com/xml-sitemap-php-script/) created and outputted the sitemap on the fly.
+
+This version saves the sitemap to a file. It also creates an url list file for yahoo. This is intended for pages that do not change that much and only need to run the script from time to time.
 
 ## Configuration
 
-Open the config.php file and configure the settings. Then check the output and if it's ok, add the script URL to Google Webmaster Tools.
+Open the config.php file and configure the settings. 
 
 ## License
 
@@ -12,11 +16,14 @@ This script is licensed under the GPL v3.
 
 ## Changelog
 
-* 2013-09-22:
+* 2013-11-25 (DA):
+    * Changed the script to output static files.
+
+* 2013-09-22 (Original):
     * Some small bugfixes to the script.
     * Added license to readme.
     
-* 2012-09-29:
+* 2012-09-29 (Original):
     * Move configuration to config.php.
     * Fix URL output.
     * Add option to work recursively.

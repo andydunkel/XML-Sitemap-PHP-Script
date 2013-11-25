@@ -4,37 +4,43 @@
  * XML Sitemap PHP Script
  * For more info, see: http://yoast.com/xml-sitemap-php-script/
  * Copyright (C), 2011 - 2012 - Joost de Valk, joost@yoast.com
+ *
+ * 2013 - Andy Dunkel andy.dunkel@ekiwi.de
+ * Sitemap.xml output is done to a file
+ * urllist.txt file is created for yahoo 
  */
-
+ 
 require './config.php';
+
+error_reporting(0);
 
 // Get the keys so we can check quickly
 $replace_files = array_keys( $replace );
 
-// Sent the correct header so browsers display properly, with or without XSL.
-header( 'Content-Type: application/xml' );
-
-echo '<?xml version="1.0" encoding="utf-8"?>' . "\n";
+$xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n";
+$xml_content = "";
+$urllist = "";
 
 $ignore = array_merge( $ignore, array( '.', '..', 'config.php', 'xml-sitemap.php' ) );
 
 if ( isset( $xsl ) && !empty( $xsl ) )
-	echo '<?xml-stylesheet type="text/xsl" href="' . SITEMAP_DIR_URL . $xsl . '"?>' . "\n";
+	$xml .= '<?xml-stylesheet type="text/xsl" href="' . SITEMAP_DIR_URL . $xsl . '"?>' . "\n";
 
 function parse_dir( $dir, $url ) {
-	global $ignore, $filetypes, $replace, $chfreq, $prio;
+	global $ignore, $filetypes, $replace, $chfreq, $prio, $xml_content, $urllist	;
 
 	$handle = opendir( $dir );
 	while ( false !== ( $file = readdir( $handle ) ) ) {
 
 		// Check if this file needs to be ignored, if so, skip it.
 		if ( in_array( utf8_encode( $file ), $ignore ) )
-			continue;
+			continue;	
 
-		if ( is_dir( $file ) ) {
-			if ( defined( 'RECURSIVE' ) && RECURSIVE )
-				parse_dir( $file, $url . $file . '/' );
-		}
+		if ( is_dir( $file ) ) {		
+			if ( defined( 'RECURSIVE' ) && RECURSIVE ) {						
+				parse_dir( $file, $url . $file . '/' );				
+			}
+		} 
 
 		// Check whether the file has on of the extensions allowed for this XML sitemap
 		$fileinfo = pathinfo( $dir . $file );
@@ -52,22 +58,37 @@ function parse_dir( $dir, $url ) {
 				$file = $replace[$file];
 
 			// Start creating the output
-	?>
 
-    <url>
-        <loc><?php echo $url . rawurlencode( $file ); ?></loc>
-        <lastmod><?php echo $mod; ?></lastmod>
-        <changefreq><?php echo $chfreq; ?></changefreq>
-        <priority><?php echo $prio; ?></priority>
-    </url><?php
+    		$xml_content .= "<url>\n";
+	 		$xml_content .= " <loc>" . $url . rawurlencode( $file ) . "</loc>\n";
+	 		$xml_content .= " <lastmod>" . $mod . "</lastmod>\n";
+	 		$xml_content .= " <changefreq>" . $chfreq . "</changefreq>\n";
+	 		$xml_content .= " <priority>" . $prio . "</priority>\n";
+	 		$xml_content .= "</url>\n";
+	 		
+	 		$urllist .= $url . rawurlencode( $file ) . "\n";
 		}
 	}
-	closedir( $handle );
+	closedir( $handle );			
 }
 
-?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><?php
-	parse_dir( SITEMAP_DIR, SITEMAP_DIR_URL );
-?>
+function endsWith($haystack, $needle) {
+    $length = strlen($needle);
+    if ($length == 0) {
+        return true;
+    }
 
-</urlset>
+    return (substr($haystack, -$length) === $needle);
+}
+
+parse_dir( SITEMAP_DIR, SITEMAP_DIR_URL ) + "\n";
+
+$xml .= "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n";
+$xml .= $xml_content;
+$xml .= "</urlset>";
+
+echo $xml;
+
+file_put_contents($xml_filename, $xml);
+file_put_contents($urllist_filename, $urllist);
+?>
